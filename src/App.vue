@@ -1,22 +1,41 @@
 <template>
   <div id="app">
-      <div id="header">
-          <h1>Space Explorers</h1>
+
+      <div id="spaceship">
+         <img src="./assets/spaceship.svg" />
       </div>
 
 
+      <Header/>
+
+      <div id="button">
+        Get the App
+      </div>
+
       <div id="content">
-        <h3>Goals / to do</h3>
+
+        <div id="phone">
+          <img src="./assets/phone.png" />
+        </div>
+        <h2>Goals / to do</h2>
         <p>Visual elements that hover / scroll at different speed, and some that
           "float" across seciton boundaries
         </p>
 
-        <p>Spaceship on a path animation</p>
-        <p>Load/animate on scroll</p>
+
+        <p> Content area: text on left, phone image on right.</p>
+
         <p>Play Now/Get the App button with special animated popup?</p>
-        <p>Visual representation of app somewhere</p>
+        <p>Three-column features list</p>
+
+
+        <p>Dark footer with large orange planet below everything else? </p>
+
+
+        <a href='https://www.freepik.com/free-vector/fantastic-galaxy-background-with-purple-lights_930794.htm'>Space Background: Freepix</a>
+        </div>
       </div>
-  </div>
+
 </template>
 
 <script>
@@ -46,27 +65,40 @@ h2,
 h3,
 h4,
 h5 {
-  font-family: "Bangers";
+  font-family: "Righteous";
   letter-spacing: 1px;
   font-weight: normal;
   margin: 0;
 }
 
-#header {
-  background: #3b0e5e;
-  min-height: 350px;
+#button {
+  position: absolute;
+  right: 20px;
+  margin-top: -40px;
+  padding: 15px;
+  background: yellow;
+  border-radius: 10px;
+  box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.2);
+}
+
+#spaceship {
+  width: 80px;
+  height: 80px;
+  position: absolute;
+  right: 10px;
+  top: 200px;
+  z-index: 10;
 }
 
 #content {
   padding: 50px;
 }
 
-h1 {
-  font-size: 70px;
-  color: #d13e19;
-  text-align: center;
-  padding: 10px;
-  text-shadow: -1px -1px 0px rgba(255, 255, 255, 0.7),
-    1px 1px 1px rgba(0, 0, 0, 0.5);
+#phone {
+  float: right;
+}
+
+#phone img {
+  max-width: 250px;
 }
 </style>
