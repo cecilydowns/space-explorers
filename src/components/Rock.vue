@@ -4,9 +4,7 @@
         top: this.top ? this.top : '',
         left: this.left ? this.left : '', 
         right: this.right ? this.right : '',
-        bottom: this.bottom ? this.bottom : '',
-        animationDelay: `${this.delay}s`,
-        animationDuration: `${this.duration}s`
+        bottom: this.bottom ? this.bottom : ''
         }" />
 </template>
 
@@ -14,7 +12,7 @@
 export default {
   name: "Rock",
   props: {
-    size: Number,
+    size: String,
     top: String,
     bottom: String,
     right: String,
