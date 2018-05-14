@@ -14,18 +14,17 @@
 export default {
   name: "Star",
   props: {
-    size: Number,
+    size: String,
     top: String,
     bottom: String,
     right: String,
     left: String,
-    duration: Number,
-    delay: Number
+    duration: String,
+    delay: String
   }
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .star {
   position: absolute;
