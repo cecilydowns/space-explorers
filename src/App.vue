@@ -1,59 +1,51 @@
 <template>
   <div id="app">
-
-      <div id="spaceship">
-         <img src="./assets/spaceship.svg" />
-      </div>
-
-
-      <Header/>
-
-      <div id="button">
-        Get the App
-      </div>
-
-      <div id="content">
-
-        <div id="phone">
-          <img src="./assets/phone.png" />
-        </div>
-        <h2>Goals / to do</h2>
-        <p>Visual elements that hover / scroll at different speed, and some that
-          "float" across seciton boundaries
-        </p>
-
-
-        <p> Content area: text on left, phone image on right.</p>
-
-        <p>Play Now/Get the App button with special animated popup?</p>
-        <p>Three-column features list</p>
-
-
-        <p>Dark footer with large orange planet below everything else? </p>
-
-
-        <a href='https://www.freepik.com/free-vector/fantastic-galaxy-background-with-purple-lights_930794.htm'>Space Background: Freepix</a>
-        </div>
-      </div>
-
+      <Background />
+      <Header />
+      <ContentTop />
+      <Middle />
+      <ContentBottom />
+      <Footer/>
+    </div>
 </template>
 
 <script>
 import Header from "./components/Header";
+import Footer from "./components/Footer";
+import Background from "./components/Background";
+import ContentTop from "./components/ContentTop";
+import ContentBottom from "./components/ContentBottom";
+import Middle from "./components/Middle";
 
 export default {
   name: "App",
   components: {
-    Header
+    Header,
+    Footer,
+    Background,
+    ContentTop,
+    ContentBottom,
+    Middle
   }
 };
 </script>
 
+
 <style>
-@import url("https://fonts.googleapis.com/css?family=Bangers|Boogaloo|Carter+One|Fredoka+One|Londrina+Solid|Luckiest+Guy|Righteous|Skranji|Unica+One");
+@import url("https://fonts.googleapis.com/css?family=Luckiest+Guy|Unica+One");
+</style>
+
+<style lang="less">
+@import url("./variables.less");
+
 body {
   margin: 0;
   padding: 0;
+}
+
+body.modal {
+  overflow: hidden;
+  height: 100vh;
 }
 
 #app {
@@ -65,40 +57,32 @@ h2,
 h3,
 h4,
 h5 {
-  font-family: "Righteous";
+  font-family: "Luckiest Guy";
   letter-spacing: 1px;
   font-weight: normal;
   margin: 0;
 }
 
-#button {
-  position: absolute;
-  right: 20px;
-  margin-top: -40px;
-  padding: 15px;
-  background: yellow;
-  border-radius: 10px;
-  box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.2);
+a,
+a:visited {
+  color: @purple;
 }
 
-#spaceship {
-  width: 80px;
-  height: 80px;
-  position: absolute;
-  right: 10px;
-  top: 200px;
-  z-index: 10;
+a:hover {
+  color: lighten(@purple, 10%);
 }
 
-#content {
-  padding: 50px;
+a:active {
+  color: lighten(@purple, 0%);
 }
 
-#phone {
-  float: right;
-}
-
-#phone img {
-  max-width: 250px;
+.features {
+  padding: 40px;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  @media screen and (max-width: 400px) {
+    padding: 25px;
+  }
 }
 </style>
