@@ -1,32 +1,28 @@
 <template>
-    <div class="feature" v-on:click.stop="expand" v-bind:class="this.expanded ? '' : 'condensed'">
-      <div 
-        ref="background"
-        v-bind:class="this.expanded ? 'inner inner-expanded' : 'inner'"
-        v-bind:style="this.expanded ? {  transform: `translate(${this.left}px, ${this.top}px) scale(${this.xScale}, ${this.yScale}`  } : { }"
-      >
-      </div>
-          <div class="icon" ref="icon"
-              v-bind:class="this.expanded ? 'expanded' : ''"
-              v-bind:style="this.expanded ? { transform: `translate(${this.iconLeft}px, ${this.iconTop}px) scale(2)` } : { }">
-              <img v-bind:src="require(`../assets/icon${this.icon}.svg`)" class="icon" />
-          </div>
+  <div class="feature" v-on:click.stop="expand" v-bind:class="this.expanded ? 'expanded' : 'condensed'">
+    <div v-if="this.expanded" class="close">X</div>
+    <div 
+      ref="background"
+      class="background"
+      v-bind:style="this.expanded ? {  transform: `translate(${this.left}px, ${this.top}px) scale(${this.xScale}, ${this.yScale}`  } : { }"
+    >
+    </div>
+    <div class="icon" ref="icon"
+      v-bind:style="this.expanded ? { transform: `translate(${this.iconLeft}px, ${this.iconTop}px) scale(2)` } : { }"
+    >
+        <img ref="iconimage" v-bind:src="require(`../assets/icon${this.icon}.svg`)" class="icon" />
+    </div>
+    <div class="heading" ref="heading"
+      v-bind:style="this.expanded ? { transform: `translate(${this.headingLeft}px, ${this.headingTop}px) scale(2)`, width: `${this.windowWidth / 2}px` } : { }"
+    >
+        <h3>{{ this.title }}</h3>
+    </div>
 
-          <div class="heading" ref="heading"
-              v-bind:class="this.expanded ? 'expanded' : ''"
-              v-bind:style="this.expanded ? { transform: `translate(${this.headingLeft}px, ${this.headingTop}px) scale(2)` } : { }">
-              <h3>{{ this.title }}</h3>
-          </div>
+    <div class="content">
+        {{ this.content }}
+    </div>
 
-          <div
-            v-bind:style="this.expanded ? { transform: `translate(${this.textLeft}px, ${this.textTop}px)`, width: `${this.textWidth}px` } : { width: `100%`}"
-            v-bind:class="this.expanded ? 'text expanded' : 'text'"
-            ref="text">
-              <p>{{ this.content }} </p>
-          </div>
-
-
-     </div>
+  </div>
 </template>
 
 <script>
@@ -46,30 +42,22 @@ export default {
       yScale: null,
       iconTop: null,
       iconLeft: null,
-      iconXScale: null,
-      iconYScale: null,
       headingTop: null,
       headingLeft: null,
-      textTop: null,
-      textLeft: null,
-      textWidth: null,
-      textWidthSmall: null
+      windowWidth: null
     };
-  },
-  mounted() {
-    this.$nextTick(function() {
-      window.addEventListener("resize", this.calculateModalSize);
-    });
   },
   methods: {
     expand(event) {
-      console.log("IN EXPAND");
       if (this.expanded === false) {
         this.expanded = true;
-        this.calculateModalSize();
-        this.calculateIconSize();
+        // Getting values we need to display the modal
+        this.calculateBackgroundSize();
+        this.calculateIconPosition();
         this.calculateHeadingPosition();
-        this.calculateTextPosition();
+        this.windowWidth = window.innerWidth;
+        // We're acessing <body> with querySelector here since the body tag is outside of the Vue app,
+        // and this seems to be the best way to "freeze" the page when the modal is open.
         document.querySelector("body").classList.add("modal");
       } else {
         this.condense();
@@ -79,37 +67,40 @@ export default {
       this.expanded = false;
       document.querySelector("body").classList.remove("modal");
     },
-    calculateModalSize() {
+    calculateBackgroundSize() {
       let {
         left,
         top,
         width,
         height
       } = this.$refs.background.getBoundingClientRect();
+      // We need to swap positive/negative for the the "top" and "left" values to know what value to give
+      // our CSS "transform: translate" to get the background to the edge of the screen. (e.g., -100 becomes 100; 50 becomes -50)
       let reversedTop = top >= 0 ? Math.abs(top) * -1 : Math.abs(top);
       let reversedLeft = left >= 0 ? Math.abs(left) * -1 : Math.abs(left);
       this.top = reversedTop;
       this.left = reversedLeft;
+      // Calculating value to give CSS Scale property to get background to fill entire screen
       this.xScale = window.innerWidth / width;
       this.yScale = window.innerHeight / height;
-      // this.inverseXScale = 1 / this.xScale;
-      // this.inverseYScale = 1 / this.yScale;
     },
-    calculateIconSize() {
+    calculateIconPosition() {
       let {
         left,
         top,
         width,
         height
       } = this.$refs.icon.getBoundingClientRect();
-      let reversedTop = top >= 0 ? Math.abs(top - 50) * -1 : Math.abs(top + 50);
-      let reversedLeft =
-        left >= 0 ? Math.abs(left - 50) * -1 : Math.abs(left + 50);
-      this.iconTop = reversedTop;
-      this.iconLeft = reversedLeft;
+      //  Converting positive values to negative and vice versa
+      let reversedTop = top >= 0 ? Math.abs(top) * -1 : Math.abs(top);
+      let reversedLeft = left >= 0 ? Math.abs(left) * -1 : Math.abs(left);
 
-      console.log("icontop", this.iconTop);
-      console.log("iconleft", this.iconLeft);
+      // Moving the icon position down from the top of the screen by 200px - this code ensures it will work
+      // regardless of page scroll position (e.g. even when icon is starting partially off screen)
+      reversedTop >= 200 ? (reversedTop -= 200) : (reversedTop += 200);
+
+      this.iconTop = reversedTop;
+      this.iconLeft = reversedLeft - this.$refs.iconimage.offsetLeft + 70; // ignore current margin when positioning, and add 70px padding
     },
     calculateHeadingPosition() {
       let {
@@ -118,178 +109,155 @@ export default {
         width,
         height
       } = this.$refs.heading.getBoundingClientRect();
-      let reversedTop =
-        top >= 0 ? Math.abs(top - 120) * -1 : Math.abs(top + 120);
-      let reversedLeft =
-        left >= 0 ? Math.abs(left - 50) * -1 : Math.abs(left + 50);
+      //  Converting positive values to negative and vice versa
+      let reversedTop = top >= 0 ? Math.abs(top) * -1 : Math.abs(top);
+      let reversedLeft = left >= 0 ? Math.abs(left) * -1 : Math.abs(left);
       this.headingTop = reversedTop;
       this.headingLeft = reversedLeft;
-      console.log("headingtop", this.headingTop);
-      console.log("headingleft", this.headingLeft);
-    },
-    calculateTextPosition() {
-      let {
-        left,
-        top,
-        width,
-        height
-      } = this.$refs.text.getBoundingClientRect();
-      let reversedTop =
-        top >= 0 ? Math.abs(top - 220) * -1 : Math.abs(top + 20);
-      let reversedLeft =
-        left >= 0 ? Math.abs(left - 50) * -1 : Math.abs(left + 50);
-      this.textTop = reversedTop;
-      this.textLeft = reversedLeft;
-      this.textWidth = window.innerWidth * 0.7;
-      this.textWidthSmall = width;
     }
   }
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="less">
 @import url("../variables.less");
 
+/* Outer grid item wrapper */
 .feature {
   position: relative;
   box-sizing: border-box;
   width: 31%;
-  /* padding: 5px; */
-  /* margin: 1%; */
-  color: #fff;
   transition: transform 0.2s;
   text-align: center;
-  /* -webkit-clip-path: polygon(0 0, 600px 0, 600 87%, 0 100%);
-  clip-path: polygon(0 0, 600px 0, 600px 87%, 0 100%); */
 
-  @media screen and (max-width: 800px) {
+  @media screen and (max-width: 600px) {
     width: 100%;
     flex-shrink: 0;
     margin-bottom: 25px;
   }
 }
 
-// .close {
-//   display: block;
-//   float: right;
-// }
-
-.feature.condensed:hover {
-  transform: scale(1.02);
-}
-
-.inner-expanded .close {
-  display: block;
-}
-
-.inner {
+/* Background styles */
+.background {
   position: relative;
-  transform-origin: top left;
   background: rgb(65, 24, 65);
-  padding: 40px 10px 20px;
   opacity: 0.5;
-  height: 200px;
+  height: 150px;
   -webkit-clip-path: polygon(0 8%, 100% 0%, 100% 92%, 0% 100%);
   clip-path: polygon(0 8%, 100% 0%, 100% 92%, 0% 100%);
   transition: transform 1s, opacity 1s;
-
-  @media screen and (max-width: 800px) {
-    height: 150px;
-  }
+  transform-origin: top left;
 }
 
-.inner.inner-expanded {
-  /* position: fixed; */
+.feature.condensed:hover .background {
+  opacity: 0.8;
+}
+
+.feature.expanded .background {
   overflow: hidden;
   z-index: 100;
   opacity: 0.95;
   clip-path: none;
   -webkit-clip-path: none;
-
-  /* transition: none; */
 }
 
+/* Icon styles */
 .icon {
   position: absolute;
-  height: 65px;
   top: 0;
   left: 0;
   right: 0;
   margin: -15px auto;
+  height: 65px;
   z-index: 20;
-  transition: all 1s;
-  transform-origin: top left;
-  // transition: all 1s;
-}
-
-.icon.expanded {
-  z-index: 2000;
-}
-
-.text {
-  position: absolute;
-  top: 85px;
   transition: transform 1s;
-  transform-origin: top left;
-
-  box-sizing: border-box;
-  width: 100%;
-
-  // left: -100px;
-  z-index: 10;
-  text-align: left;
-  padding: 15px;
-  font-size: 15px;
-
-  @media screen and (max-width: 800px) {
-    font-size: 18px;
-    top: 70px;
-  }
-
-  @media screen and (max-width: 580px) {
-    font-size: 15px;
-    top: 100px;
-  }
 }
 
-.text.expanded {
-  font-size: 25px;
+.feature.expanded .icon {
   z-index: 1000;
 }
 
+/* Heading styles */
 .heading {
   position: absolute;
+  box-sizing: border-box;
   top: 30px;
-  transition: all 1s;
-  transform-origin: top left;
   z-index: 10;
-  text-align: left;
   padding: 15px;
+  width: 100%;
+  transition: transform 1s;
+  transform-origin: top left;
 }
 
-.heading.expanded {
+.feature.expanded .heading {
   z-index: 1000;
+  text-align: left;
 }
 
 h3 {
-  font-size: 35px;
-  /* transform: skew(0deg, -3deg); */
+  font-size: 40px;
   line-height: 0.8;
   font-family: @subhead;
   font-weight: bold;
-  color: yellow;
-  @media screen and (max-width: 800px) {
-    font-size: 45px;
+  color: @yellow;
+  @media screen and (max-width: 880px) {
+    font-size: 35px;
+  }
+  @media screen and (max-width: 790px) {
+    font-size: 30px;
+  }
+  @media screen and (max-width: 670px) {
+    font-size: 27px;
+  }
+  @media screen and (max-width: 600px) {
+    font-size: 40px;
+  }
+  @media screen and (max-width: 375px) {
+    font-size: 30px;
   }
 }
 
-@keyframes pulse {
+/* Content - fades in on click */
+.content {
+  visibility: hidden;
+  opacity: 0;
+  position: fixed;
+  top: 200px;
+  left: 200px;
+  color: #fff;
+  text-align: left;
+  font-size: 20px;
+  margin-right: 100px;
+  animation-delay: 0.5s;
+  transition: opacity 3s;
+}
+
+.expanded .content {
+  visibility: visible;
+  z-index: 1000;
+  opacity: 1;
+}
+
+/* Top-right "X" button */
+.close {
+  position: fixed;
+  right: 20px;
+  top: 20px;
+  font-family: "Luckiest Guy";
+  cursor: default;
+  z-index: 1000;
+  animation: fadein 2s;
+  color: #fff;
+}
+
+/* Keyframes */
+@keyframes fadein {
   0% {
-    transform: scale(1);
+    opacity: 0;
   }
   100% {
-    transform: scale(1.05);
+    opacity: 1;
+    transform: scale(1.5);
   }
 }
 </style>
